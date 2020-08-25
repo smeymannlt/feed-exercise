@@ -1,14 +1,20 @@
 package com.lightricks.feedexercise.ui.feed
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.lightricks.feedexercise.data.FeedItem
+import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.util.Event
-import java.lang.IllegalArgumentException
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * This view model manages the data for [FeedFragment].
  */
 open class FeedViewModel : ViewModel() {
+    private var disposableRequest: Disposable? = null
+
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
     private val feedItems = MediatorLiveData<List<FeedItem>>()
@@ -23,10 +29,31 @@ open class FeedViewModel : ViewModel() {
         refresh()
     }
 
+    @Suppress("unused")
+    fun destroy() {
+        disposableRequest?.takeUnless { it.isDisposed }?.dispose()
+    }
+
     fun refresh() {
-        //todo: fix the implementation
-        isLoading.value = false
-        isEmpty.value = true
+        disposableRequest = FeedApiService().fetchStream()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ feedData ->
+                isLoading.postValue(false)
+                val items = feedData.metadata.map {
+                    FeedItem(it.id, FeedApiService.uriForItem(it).toString(), it.isPremium)
+                }
+                isEmpty.postValue(items.isEmpty())
+                feedItems.postValue(items)
+            }, { throwable ->
+                isLoading.postValue(false)
+                networkErrorEvent.postValue(Event("Sorry, there was an error"))
+                Log.w(LOG_TAG, "Error on fetching stream $throwable")
+            })
+    }
+
+    companion object {
+        private const val LOG_TAG = "FeedVM"
     }
 }
 
