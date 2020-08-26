@@ -1,13 +1,12 @@
 package com.lightricks.feedexercise.ui.feed
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
@@ -36,14 +35,14 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        viewModel = ViewModelProvider(this, FeedViewModelFactory())
+        viewModel = ViewModelProvider(this, FeedViewModelFactory(activity!!))
             .get(FeedViewModel::class.java)
 
-        viewModel.getFeedItems().observe(viewLifecycleOwner, Observer { items ->
+        viewModel.getFeedItems().observe(viewLifecycleOwner, { items ->
             feedAdapter.items = items
         })
 
-        viewModel.getNetworkErrorEvent().observe(viewLifecycleOwner, Observer { event ->
+        viewModel.getNetworkErrorEvent().observe(viewLifecycleOwner, { event ->
             // Kotlin note: Here "let { ... }" means that showNetworkError() should be called
             // only if there result of getContentIfNotHandled() is not null.
             event.getContentIfNotHandled()?.let { showNetworkError() }
