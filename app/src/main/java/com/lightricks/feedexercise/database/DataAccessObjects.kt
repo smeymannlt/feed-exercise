@@ -7,9 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import io.reactivex.Completable
 
-/***
- * todo: add Room's Data Access Object interface(s) here
- */
 @Dao
 interface FeedEntitiesDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
