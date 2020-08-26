@@ -5,9 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-/**
- * todo: add the abstract class that extents RoomDatabase here
- */
 @Database(version = 1, entities = [FeedDbEntity::class])
 abstract class FeedDatabase : RoomDatabase() {
     abstract fun feedEntitiesDao(): FeedEntitiesDao
