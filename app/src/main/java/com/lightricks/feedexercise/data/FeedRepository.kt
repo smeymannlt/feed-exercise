@@ -1,6 +1,5 @@
 package com.lightricks.feedexercise.data
 
-import android.content.Context
 import androidx.lifecycle.Transformations
 import com.lightricks.feedexercise.database.FeedDatabase
 import com.lightricks.feedexercise.database.FeedDbEntity
@@ -12,11 +11,7 @@ import io.reactivex.Completable
  * This is our data layer abstraction. Users of this class don't need to know
  * where the data actually comes from (network, database or somewhere else).
  */
-class FeedRepository(context: Context) {
-    private val appContext = context.applicationContext
-    private val api by lazy { FeedApiService() }
-    private val database = FeedDatabase.build(appContext)
-
+class FeedRepository(private val database: FeedDatabase, private val api: FeedApiService) {
     fun refresh(): Completable {
         // Fetch
         val fetchResult = api.fetchStream()
@@ -31,11 +26,14 @@ class FeedRepository(context: Context) {
         }
     }
 
-    val feedItems = Transformations.map(
-        database.feedEntitiesDao().loadAll()
-    ) { items ->
-        items.map { item -> item.toFeedItem() }
-    }
+    val feedItems
+        get() = Transformations.map(
+            database.feedEntitiesDao().loadAll()
+        ) { items ->
+            items.map { item ->
+                item.toFeedItem()
+            }
+        }
 
     private fun FeedData.toDbEntities() = metadata.map {
         FeedDbEntity(it.id, FeedApiService.uriForItem(it).toString(), it.isPremium)
