@@ -60,23 +60,19 @@ class FeedRepositoryTest {
 
     @Test
     fun refresh() {
-        val latch = CountDownLatch(1)
-        repository.refresh().blockingGet()
-        repository.feedItems.observeForever {
-            it ?: return@observeForever
+        repository.refresh().test().await()
+        repository.feedItems.blockingObserve(listOf()).let {
             Truth.assertThat(it.size == MockFeedApiService.feedData.metadata.size).isTrue()
-            latch.countDown()
         }
-        latch.await()
     }
 }
 
-private fun <T> LiveData<T>.blockingObserve(): T? {
+private fun <T> LiveData<T>.blockingObserve(defaultValue: T): T {
     var value: T? = null
     val latch = CountDownLatch(1)
     val observer = object : Observer<T> {
         override fun onChanged(t: T) {
-            value = t
+            value = t ?: return
             latch.countDown()
             removeObserver(this)
         }
@@ -84,5 +80,5 @@ private fun <T> LiveData<T>.blockingObserve(): T? {
 
     observeForever(observer)
     latch.await(5, TimeUnit.SECONDS)
-    return value
+    return value ?: defaultValue
 }
