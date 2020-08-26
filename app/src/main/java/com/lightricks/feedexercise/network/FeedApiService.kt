@@ -16,9 +16,9 @@ internal interface FeedFetcher {
     fun fetch(): Single<FeedData>
 }
 
-class FeedApiService {
+open class FeedApiService {
     @WorkerThread
-    fun fetchStream(): Single<FeedData> {
+    open fun fetchStream(): Single<FeedData> {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
         val retrofit = Retrofit.Builder().baseUrl("https://assets.swishvideoapp.com/")
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))

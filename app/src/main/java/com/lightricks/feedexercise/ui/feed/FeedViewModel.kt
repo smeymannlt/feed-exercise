@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.lightricks.feedexercise.data.FeedItem
 import com.lightricks.feedexercise.data.FeedRepository
+import com.lightricks.feedexercise.database.FeedDatabase
+import com.lightricks.feedexercise.network.FeedApiService
 import com.lightricks.feedexercise.util.Event
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -16,7 +18,8 @@ import io.reactivex.schedulers.Schedulers
  */
 open class FeedViewModel(context: Context) : ViewModel() {
     private var disposableRequest: Disposable? = null
-    private val repository: FeedRepository = FeedRepository(context)
+    private val repository: FeedRepository =
+        FeedRepository(FeedDatabase.build(context), FeedApiService())
 
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
