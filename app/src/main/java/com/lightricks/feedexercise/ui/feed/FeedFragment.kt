@@ -1,13 +1,13 @@
 package com.lightricks.feedexercise.ui.feed
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
@@ -18,6 +18,7 @@ import com.lightricks.feedexercise.databinding.FeedFragmentBinding
 /**
  * This Fragment shows the feed grid. The feed consists of template thumbnail images.
  * Layout file: feed_fragment.xml
+ *
  */
 class FeedFragment : Fragment() {
     // Kotlin note: Usually, variables are initialized at the same time they are declared.
