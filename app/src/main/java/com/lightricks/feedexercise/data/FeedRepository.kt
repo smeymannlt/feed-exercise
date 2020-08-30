@@ -26,14 +26,13 @@ class FeedRepository(private val database: FeedDatabase, private val api: FeedAp
         }
     }
 
-    val feedItems
-        get() = Transformations.map(
-            database.feedEntitiesDao().loadAll()
-        ) { items ->
-            items.map { item ->
-                item.toFeedItem()
-            }
+    val feedItems = Transformations.map(
+        database.feedEntitiesDao().loadAll()
+    ) { items ->
+        items.map { item ->
+            item.toFeedItem()
         }
+    }
 
     private fun FeedData.Metadata.toDbEntity() =
         FeedDbEntity(id, FeedApiService.uriForItem(this).toString(), this.isPremium)
