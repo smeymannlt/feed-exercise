@@ -2,7 +2,7 @@ package com.lightricks.feedexercise.network
 
 import io.reactivex.Single
 
-class MockFeedApiService : FeedApiService() {
+class MockFeedApiService() : FeedApiService() {
     override fun fetchStream(): Single<FeedData> = Single.just(feedData)
 
     companion object {

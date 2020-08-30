@@ -12,14 +12,14 @@ import io.reactivex.Completable
  * where the data actually comes from (network, database or somewhere else).
  */
 class FeedRepository(private val database: FeedDatabase, private val api: FeedApiService) {
-    fun refresh(): Completable {
+    fun refreshAsync(): Completable {
         // Fetch
         val fetchResult = api.fetchStream()
 
         // Store and return
         return fetchResult.flatMapCompletable { feedData ->
             if (feedData.metadata.isNotEmpty()) {
-                database.feedEntitiesDao().insert(feedData.toDbEntities())
+                database.feedEntitiesDao().insert(feedData.metadata.map { it.toDbEntity() })
             } else {
                 Completable.error(RuntimeException("Failure"))
             }
@@ -35,9 +35,8 @@ class FeedRepository(private val database: FeedDatabase, private val api: FeedAp
             }
         }
 
-    private fun FeedData.toDbEntities() = metadata.map {
-        FeedDbEntity(it.id, FeedApiService.uriForItem(it).toString(), it.isPremium)
-    }
+    private fun FeedData.Metadata.toDbEntity() =
+        FeedDbEntity(id, FeedApiService.uriForItem(this).toString(), this.isPremium)
 
     private fun FeedDbEntity.toFeedItem() = FeedItem(id, thumbnailUrl, isPremium)
 }

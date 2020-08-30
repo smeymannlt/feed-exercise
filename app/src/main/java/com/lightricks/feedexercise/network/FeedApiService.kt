@@ -1,7 +1,6 @@
 package com.lightricks.feedexercise.network
 
 import android.net.Uri
-import androidx.annotation.WorkerThread
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Single
@@ -16,19 +15,23 @@ internal interface FeedFetcher {
     fun fetch(): Single<FeedData>
 }
 
-open class FeedApiService {
-    @WorkerThread
-    open fun fetchStream(): Single<FeedData> {
-        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-        val retrofit = Retrofit.Builder().baseUrl("https://assets.swishvideoapp.com/")
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
+open class FeedApiService protected constructor() {
+    private val jsonParser = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    private val feedFetcher = buildFeedFetcher()
 
-        return retrofit.create(FeedFetcher::class.java).fetch()
+    open fun fetchStream(): Single<FeedData> {
+        return feedFetcher?.fetch() ?: Single.just(FeedData.EMPTY)
+    }
+
+    private fun buildFeedFetcher(): FeedFetcher? {
+        return Retrofit.Builder().baseUrl("https://assets.swishvideoapp.com/")
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(MoshiConverterFactory.create(jsonParser)).build()
+            .create(FeedFetcher::class.java)
     }
 
     companion object {
-        fun uriForItem(item: FeedData.Metadata) = if (item.templateThumbnailUrl.isNotBlank()) {
+        fun uriForItem(item: FeedData.Metadata): Uri = if (item.templateThumbnailUrl.isNotBlank()) {
             Uri.parse("https://assets.swishvideoapp.com/Android/demo/catalog/thumbnails/")
                 .buildUpon()
                 .appendPath(item.templateThumbnailUrl).build()
@@ -36,6 +39,8 @@ open class FeedApiService {
             Uri.EMPTY
         }
 
+        private var instance: FeedApiService? = null
+        fun get(): FeedApiService = instance ?: FeedApiService().also { instance = it }
         private const val LOG_TAG = "FeedApiService"
     }
 }

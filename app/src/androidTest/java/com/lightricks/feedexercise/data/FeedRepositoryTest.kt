@@ -41,7 +41,7 @@ class FeedRepositoryTest {
 
     @Test
     fun refresh() {
-        repository.refresh().test().await()
+        repository.refreshAsync().test().await()
         repository.feedItems.blockingObserve(listOf()).let {
             Truth.assertThat(it.size == MockFeedApiService.feedData.metadata.size).isTrue()
         }

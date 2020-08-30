@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 open class FeedViewModel(context: Context) : ViewModel() {
     private var disposableRequest: Disposable? = null
     private val repository: FeedRepository =
-        FeedRepository(FeedDatabase.build(context), FeedApiService())
+        FeedRepository(FeedDatabase.get(context), FeedApiService.get())
 
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
@@ -35,6 +35,10 @@ open class FeedViewModel(context: Context) : ViewModel() {
 
     init {
         feedItems.addSource(repository.feedItems) { feedItems.postValue(it) }
+
+        // This is for the exercise, to demonstrate MediatorLiveData.
+        // On a real project - subscribe to feedData.
+        // feedItems.observeForever{value -> isEmpty.postValue{it?.isEmpty != false}}}
         mediatorLiveData.addSource(feedItems) { isEmpty.postValue(it?.isEmpty() != false) }
         refresh()
     }
@@ -46,19 +50,17 @@ open class FeedViewModel(context: Context) : ViewModel() {
 
     @SuppressLint("CheckResult")
     fun refresh() {
-        repository.refresh()
+        isLoading.postValue(true)
+        repository.refreshAsync()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 isLoading.postValue(false)
-                val items = repository.feedItems.value
-                feedItems.postValue(items)
             }, {
                 isLoading.postValue(false)
                 networkErrorEvent.postValue(Event("Sorry, there was an error"))
                 Log.w(LOG_TAG, "Error on fetching stream $it")
             })
-
     }
 
     companion object {
