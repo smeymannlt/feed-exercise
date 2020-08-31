@@ -55,7 +55,7 @@ class FeedRepositoryTest {
         dBase.feedEntitiesDao().insert(fakeData).test().await()
         repository.feedItems.blockingObserve(listOf()).let { appDataItems ->
             if (appDataItems?.size ?: 0 == 0) return@let
-            Truth.assertThat(appDataItems.size == fakeData.size).isTrue()
+            Truth.assertThat(appDataItems.size).isEqualTo(fakeData.size)
 
             // Check contents
             val liveDataMap = appDataItems.map { it.id to it }.toMap()
