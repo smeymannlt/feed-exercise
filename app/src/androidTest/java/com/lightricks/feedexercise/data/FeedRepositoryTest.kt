@@ -64,12 +64,18 @@ class FeedRepositoryTest {
             // Check IDs
             Truth.assertThat(liveDataMap.keys == fakeDataMap.keys).isTrue()
 
+
+
+
             // Check values
             Truth.assertThat(liveDataMap.keys.all { liveDataMap[it]?.isEquivalentTo(fakeDataMap[it]) == true })
         }
     }
 
-    private fun FeedItem.isEquivalentTo(dbEntity: FeedDbEntity?) = dbEntity != null
+    private fun FeedItem.isEquivalent
+
+
+    To(dbEntity: FeedDbEntity?) = dbEntity != null
             && id == dbEntity.id
             && isPremium == dbEntity.isPremium
             && thumbnailUrl == dbEntity.thumbnailUrl
