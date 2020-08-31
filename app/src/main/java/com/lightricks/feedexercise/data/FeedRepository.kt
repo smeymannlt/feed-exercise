@@ -11,6 +11,8 @@ import io.reactivex.Completable
  * This is our data layer abstraction. Users of this class don't need to know
  * where the data actually comes from (network, database or somewhere else).
  *
+ * Don't construct directly, use [FeedRepository.createIfAbsent] instead
+ *
  */
 class FeedRepository private constructor(
     private val database: FeedDatabase,
@@ -38,7 +40,13 @@ class FeedRepository private constructor(
         }
     }
 
-    // TODO: Depending on system requirements - handle destruction of the FeedRepository
+    /**
+     * Call this on system shutdown. E.g on logout.
+     */
+    @Suppress("unused")
+    fun destroy() {
+        instance = null
+    }
 
     private fun FeedData.Metadata.toDbEntity() =
         FeedDbEntity(id, FeedApiService.uriForItem(this).toString(), this.isPremium)
@@ -47,6 +55,14 @@ class FeedRepository private constructor(
 
     companion object {
         private var instance: FeedRepository? = null
+
+        /**
+         * Create the feed repository singleton, which will happen if not created before.
+         *
+         * @param creator a lambda that provides a pair of the database and the API handlers
+         *
+         * @return an instance of [FeedRepository]
+         */
         fun createIfAbsent(creator: () -> Pair<FeedDatabase, FeedApiService>) = instance
             ?: creator.invoke().let { FeedRepository(it.first, it.second) }.also { instance = it }
     }
