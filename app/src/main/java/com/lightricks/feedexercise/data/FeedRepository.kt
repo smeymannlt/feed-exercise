@@ -10,8 +10,12 @@ import io.reactivex.Completable
 /**
  * This is our data layer abstraction. Users of this class don't need to know
  * where the data actually comes from (network, database or somewhere else).
+ *
  */
-class FeedRepository(private val database: FeedDatabase, private val api: FeedApiService) {
+class FeedRepository private constructor(
+    private val database: FeedDatabase,
+    private val api: FeedApiService
+) {
     fun refreshAsync(): Completable {
         // Fetch
         val fetchResult = api.fetchStream()
@@ -34,8 +38,16 @@ class FeedRepository(private val database: FeedDatabase, private val api: FeedAp
         }
     }
 
+    // TODO: Depending on system requirements - handle destruction of the FeedRepository
+
     private fun FeedData.Metadata.toDbEntity() =
         FeedDbEntity(id, FeedApiService.uriForItem(this).toString(), this.isPremium)
 
     private fun FeedDbEntity.toFeedItem() = FeedItem(id, thumbnailUrl, isPremium)
+
+    companion object {
+        private var instance: FeedRepository? = null
+        fun createIfAbsent(creator: () -> Pair<FeedDatabase, FeedApiService>) = instance
+            ?: creator.invoke().let { FeedRepository(it.first, it.second) }.also { instance = it }
+    }
 }

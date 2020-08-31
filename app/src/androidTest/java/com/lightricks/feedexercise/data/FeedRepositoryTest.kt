@@ -32,7 +32,7 @@ class FeedRepositoryTest {
             InstrumentationRegistry.getInstrumentation().context,
             FeedDatabase::class.java
         ).build()
-        repository = FeedRepository(dBase, MockFeedApiService())
+        repository = FeedRepository.createIfAbsent { dBase to MockFeedApiService() }
     }
 
     @After

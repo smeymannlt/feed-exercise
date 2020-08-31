@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 open class FeedViewModel(context: Context) : ViewModel() {
     private var disposableRequest: Disposable? = null
     private val repository: FeedRepository =
-        FeedRepository(FeedDatabase.get(context), FeedApiService.get())
+        FeedRepository.createIfAbsent { FeedDatabase.get(context) to FeedApiService.get() }
 
     private val isLoading = MutableLiveData<Boolean>()
     private val isEmpty = MutableLiveData<Boolean>()
