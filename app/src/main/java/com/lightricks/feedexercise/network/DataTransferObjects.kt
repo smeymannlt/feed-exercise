@@ -7,6 +7,10 @@ import com.squareup.moshi.JsonClass
 data class FeedData(@Json(name = "templatesMetadata") val metadata: List<Metadata> = listOf()) {
     @JsonClass(generateAdapter = true)
     data class Metadata(
+
+
+
+
         @Json(name = "configuration") val configuration: String = "",
         @Json(name = "id") val id: String = "",
         @Json(name = "isNew") val isNew: Boolean = false,
@@ -14,6 +18,8 @@ data class FeedData(@Json(name = "templatesMetadata") val metadata: List<Metadat
         @Json(name = "templateCategories") val templateCategories: List<String> = listOf(),
         @Json(name = "templateName") val templateName: String = "",
         @Json(name = "templateThumbnailURI") val templateThumbnailUrl: String = ""
+
+
     )
 
     companion object {
