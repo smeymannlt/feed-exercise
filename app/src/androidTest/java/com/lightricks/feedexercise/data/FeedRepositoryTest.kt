@@ -72,10 +72,7 @@ class FeedRepositoryTest {
         }
     }
 
-    private fun FeedItem.isEquivalent
-
-
-    To(dbEntity: FeedDbEntity?) = dbEntity != null
+    private fun FeedItem.isEquivalentTo(dbEntity: FeedDbEntity?) = dbEntity != null
             && id == dbEntity.id
             && isPremium == dbEntity.isPremium
             && thumbnailUrl == dbEntity.thumbnailUrl
